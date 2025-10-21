@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE configuration
+                PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+                "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <!--配置日志打印-->
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!-- 下划线字段对应实体类驼峰命名 数据库表：brand_name 映射到相应实体类里面：brandName -->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+
+    </settings>
+
+    <typeAliases>
+        <!-- 扫描包里面的类，批量起别名，别名即类名，不区分大小写 -->
+        <package name="com.java.pojo"/>
+    </typeAliases>
+
+
+</configuration>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.ClubMapper">
+    <select id="selectClubById" parameterType="java.lang.Integer" resultType="com.java.pojo.Club">
+        SELECT * FROM club WHERE id = #{id}
+    </select>
+
+    <select id="selectAllClubs" resultType="com.java.pojo.Club">
+        SELECT * FROM club ORDER BY create_time DESC
+    </select>
+
+
+    <insert id="insertClub" parameterType="com.java.pojo.Club" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO club(name,category,intro,founder_id,status,create_time)
+            VALUES (#{name},#{category},#{intro},#{founderId},#{status},NOW())
+
+    </insert>
+
+    <update id="updateClub" parameterType="com.java.pojo.Club">
+        UPDATE club
+        SET name = #{name},
+            category = #{category},
+            intro = #{intro},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteClub" parameterType="java.lang.Integer">
+        DELETE FROM club WHERE id = #{id}
+    </delete>
+
+    <select id="selectClubsByFounderId" parameterType="java.lang.Integer" resultType="com.java.pojo.Club">
+        SELECT * FROM club WHERE founder_id = #{founderId} ORDER BY create_time DESC
+    </select>
+
+    <select id="selectClubsByStatus" parameterType="java.lang.Integer" resultType="com.java.pojo.Club">
+        SELECT * FROM club WHERE status = #{status} ORDER BY create_time DESC
+    </select>
+    <select id="selectAllNormalClubs" resultType="com.java.pojo.Club">
+        SELECT
+            id,
+            name,
+            category,
+            intro,
+            founder_id AS founderId  -- 映射到实体类的founderId属性
+        FROM club
+        WHERE status = 1  -- 只查询正常状态的社团
+    </select>
+
+
+    <select id="selectClubByName" parameterType="java.lang.String" resultType="com.java.pojo.Club">
+    SELECT * FROM club WHERE name = #{name}
+</select>
+
+
+</mapper>

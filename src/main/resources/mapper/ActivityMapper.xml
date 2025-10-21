@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.mapper.ActivityMapper">
+
+
+    <!-- 插入活动 -->
+    <insert id="insertActivity" parameterType="Activity">
+        INSERT INTO activity
+        (title, club_id, start_time, location, status)
+        VALUES
+        (#{title}, #{clubId}, #{startTime}, #{location}, #{status})
+        <selectKey keyProperty="id" resultType="int" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <!-- 查询活动 -->
+    <select id="selectById" parameterType="int" resultType="Activity">
+        SELECT id, title, club_id AS clubId,
+               start_time AS startTime, location, status
+        FROM activity
+        WHERE id = #{id}
+    </select>
+
+    <!-- 更新活动时间和地点 -->
+    <update id="updateTimeAndLocation" parameterType="map">
+        UPDATE activity
+        SET start_time = #{newStartTime},
+            location = #{newLocation}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 更新活动状态 -->
+    <update id="updateStatus" parameterType="map">
+        UPDATE activity
+        SET status = #{status}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查询活动列表 -->
+    <select id="selectByCondition" parameterType="map" resultType="Activity">
+        SELECT id, title, club_id AS clubId,
+        start_time AS startTime, location, status
+        FROM activity
+        WHERE 1=1
+        <if test="clubId != null">
+            AND club_id = #{clubId}
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        <if test="timeType == 1">
+            AND start_time >= DATE_SUB(NOW(), INTERVAL 1 WEEK)
+        </if>
+        <if test="timeType == 2">
+            AND start_time >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
+        </if>
+    </select>
+<!--    检查是否为管理员（新增）-->
+    <select id="getClubIdByActivityId" resultType="java.lang.Integer">
+        SELECT club_id FROM activity WHERE id = #{activityId}
+    </select>
+
+    <select id="getManagedActivityIds" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+        SELECT activity_id FROM activity_manager WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectMyActivities" parameterType="map" resultType="Activity">
+        SELECT a.*
+        FROM activity a
+        JOIN user_activity ua ON a.id = ua.activity_id
+        WHERE ua.user_id = #{userId}
+
+        <!-- 状态筛选 -->
+        <if test="status != null">
+            AND a.status = #{status}
+        </if>
+
+        <if test="timeType != null">
+            <choose>
+                <when test="timeType == 'future'">
+                    AND a.start_time > NOW()
+                </when>
+                <when test="timeType == 'now'">
+                    AND a.start_time &lt;= NOW() AND a.end_time &gt;= NOW()
+                </when>
+            </choose>
+        </if>
+
+        <!-- 排序 -->
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+    </select>
+
+
+    <select id="getActivityByTitle" parameterType="string" resultType="com.java.pojo.Activity">
+        SELECT id, title, status FROM activity WHERE title = #{title}
+    </select>
+
+    <update id="updateById" parameterType="com.java.pojo.Activity">
+        UPDATE activity
+        SET
+            title = #{title},
+            club_id = #{clubId},
+            start_time = #{startTime},
+            location = #{location},
+            status = #{status}
+        WHERE id = #{id}
+    </update>
+</mapper>

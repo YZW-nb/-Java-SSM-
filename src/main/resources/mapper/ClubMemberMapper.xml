@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.java.mapper.ClubMemberMapper">
+
+    <!-- 检查用户是否已加入社团 -->
+    <select id="checkMember" resultType="int">
+        SELECT COUNT(*) FROM club_member
+        WHERE club_id = #{clubId} AND user_id = #{userId}
+    </select>
+
+    <!-- 加入社团 -->
+    <insert id="addMember" parameterType="com.java.pojo.ClubMember">
+        INSERT INTO club_member (club_id, user_id)
+        VALUES (#{clubId}, #{userId})
+        <!-- join_time 使用数据库默认值 CURRENT_TIMESTAMP -->
+    </insert>
+
+    <!-- 退出社团 -->
+    <delete id="deleteMember">
+        DELETE FROM club_member
+        WHERE club_id = #{clubId} AND user_id = #{userId}
+    </delete>
+
+    <!-- 获取社团的所有成员ID -->
+    <select id="selectUserIdsByClubId" resultType="int">
+        SELECT user_id FROM club_member
+        WHERE club_id = #{clubId}
+        ORDER BY join_time ASC
+    </select>
+
+    <!-- 获取用户加入的所有社团ID -->
+    <select id="selectClubIdsByUserId" resultType="int">
+        SELECT club_id FROM club_member
+        WHERE user_id = #{userId}
+        ORDER BY join_time DESC
+    </select>
+
+    <!-- 获取社团成员数量 -->
+    <select id="countMembersByClubId" resultType="int">
+        SELECT COUNT(*) FROM club_member
+        WHERE club_id = #{clubId}
+    </select>
+</mapper>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.java.mapper.FundMapper">
+
+    <!-- 增：录入经费记录 -->
+
+<!--    <insert id="insertFund" parameterType="Fund">-->
+<!--        INSERT INTO fund (club_id, type, amount, fund_date, source_or_purpose, operator_id, proof_desc, create_time, remark)-->
+<!--        VALUES (#{clubId}, #{type}, #{amount}, #{fundDate}, #{sourceOrPurpose}, #{operatorId}, #{proofDesc}, #{createTime}, #{remark})-->
+<!--    </insert>-->
+
+    <insert id="insertFund" parameterType="Fund">
+        INSERT INTO fund (club_id, type, amount, fund_date, source_or_purpose, create_time, operator_id)
+        VALUES (#{clubId}, #{type}, #{amount}, #{fundDate}, #{sourceOrPurpose}, #{createTime}, #{operatorId})
+    </insert>
+    <!-- 删：仅删除未审核的记录（需业务校验关联，这里简化SQL） -->
+    <delete id="deleteUnapprovedFund">
+        DELETE FROM fund
+        WHERE id = #{id}
+          AND /* 假设需关联“审核状态”，可扩展字段：is_approved = 0 */ 1=1
+    </delete>
+
+    <!-- 改：修改支出金额 -->
+    <update id="updateFundAmount">
+        UPDATE fund
+        SET amount = #{newAmount},
+            create_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 改：补充凭证说明 -->
+    <update id="updateProofDesc">
+        UPDATE fund
+        SET proof_desc = #{newProofDesc},
+            create_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+
+    <!-- 查：按条件统计经费 -->
+    <select id="selectFundByCondition" resultType="com.java.pojo.Fund">
+        SELECT * FROM fund
+        <where>
+            <if test="clubId != null">AND club_id = #{clubId}</if>
+            <if test="startTime != null">AND create_time &gt;= #{startTime}</if>
+            <if test="endTime != null">AND create_time &lt;= #{endTime}</if>
+            <if test="type != null">AND type = #{type}</if>
+        </where>
+    </select>
+
+    <!-- 查：单条经费详情（操作人、凭证等） -->
+    <select id="selectFundDetail" resultType="com.java.pojo.Fund">
+        SELECT * FROM fund
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectAllFunds" resultType="Fund">
+        SELECT * FROM fund;
+    </select>
+</mapper>
